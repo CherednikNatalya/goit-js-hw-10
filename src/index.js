@@ -6,6 +6,10 @@ import debounce from 'lodash.debounce';
 // let countriesName = null
 const DEBOUNCE_DELAY = 300;
 
+const refs = {
+  form: document.querySelector('#search-box')
+}
+console.log(refs.form);
 
     function fetchCountries(name) {
       return fetch(
@@ -16,16 +20,13 @@ const DEBOUNCE_DELAY = 300;
             throw new Error(response.status);
           }
           return response.json();
-        })
-    
-        .catch(err => console.log('Error!'));
+        }).catch(err => console.log('Error!'));
     }
 
-
     
-// function createMarkup({name}) {
-// console.log(name.common);
-//   }
+function createMarkup({name}) {
+console.log(name.common);
+  }
 
 
   
