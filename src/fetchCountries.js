@@ -1,20 +1,18 @@
 export { fetchCountries, populationFormat };
 
- function fetchCountries() {
-    return fetch(
-        `https://restcountries.com/v3.1/name/${name}`
-      )
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          return response.json();
-        }).catch(err => console.log('Error!'));
-}
-fetchCountries()
-console.log(fetchCountries);
+function fetchCountries(name) {
+  return fetch(
+    `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
+  )
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(response.status);
+      }
+      return response.json();
+    })
 
-// export { fetchCountries, populationFormat };
+    .catch(err => console.log('Error!'));
+}
 
 function populationFormat(numbers) {
   const numberNew = numbers.toString();
