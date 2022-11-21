@@ -1,41 +1,173 @@
-import './css/styles.css';
-import Notiflix from 'notiflix';
-import debounce from 'lodash.debounce';
+// import './css/styles.css';
+// import Notiflix from 'notiflix';
+// import debounce from 'lodash.debounce';
+
+// // fetchCountries - отримуємо масив всіх країн
+// // отримуємо доступ до необхідних властивостей масива
+// // створюємо размітку та передаєм значення 
+
+
+// // import { fetchCountries, populationFormat } from './fetchCountries';
 
 // import { fetchCountries } from './fetchCountries';
-// let countriesName = null
-const DEBOUNCE_DELAY = 300;
+// // let countriesName = null
+// const DEBOUNCE_DELAY = 300;
 
-const refs = {
-  form: document.querySelector('#search-box')
-}
-console.log(refs.form);
-
-    function fetchCountries(name) {
-      return fetch(
-        `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
-      )
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          return response.json();
-        }).catch(err => console.log('Error!'));
-    }
+// const refs = {
+//   form: document.querySelector('#search-box'),
+//   countryList: document.querySelector('.country-list'),
+//   countryInfo: document.querySelector('.country-info')
+// }
 
     
-function createMarkup({name}) {
-console.log(name.common);
-  }
+// function createMarkup({name, capital, population, flags, language}) {
+
+
+
+//   }
+
+//   const handleSubmit = (evt) =>{
+//     evt.preventDefault();
+//     const {} = event.currentTarget.elements
+//   }
+
+//   refs.form.addEventListener('submit',handleSubmit);
+
+//   function renderCountryList(countries) {
+//       if (countries.length === 1) {
+//         renderCountryInfo(countries);
+//       } else {
+//         renderCountrysList(countries);
+//       }
+//     }
+
+
+//   function renderCountryInfo(country) {
+//     const markup = country
+//       .map(({ flags, name, capital, population, languages }) => {
+//         const totalPeople = populationFormat(population);
+//         return `<img width="200px" height="100px" src='${flags.svg}'
+//         alt='${name.official} flag' />
+//           <ul class="country-info__list">
+//               <li class="country-info__item country-info__item--name"><p><b>Name: </b>${
+//                 name.official
+//               }</p></li>
+//               <li class="country-info__item"><p><b>Capital: </b>${capital}</p></li>
+//               <li class="country-info__item"><p><b>Population: </b>${totalPeople}</p></li>
+//               <li class="country-info__item"><p><b>Languages: </b>${Object.values(
+//                 languages
+//               )}</p></li>
+//           </ul>`;
+//       })
+//       .join('');
+//     refs.countryInfo.innerHTML = markup;
+//   }
+//   function renderCountrysList(countries) {
+//     const markup = countries
+//       .map(({ flags, name }) => {
+//         return `
+//                   <li class="country-list__item">
+//                       <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 50px height = 50px>
+//                       <p class="country-list__name">${name.official}</p>
+//                   </li>
+//                   `;
+//       })
+  
+//       .join('');
+  
+//     refs.countryInfo.innerHTML = markup;
+//   }
+
+
+
+
 
 
   
-  // function createMarkup({name, capital, population, flags, languages}) {
-  //   console.log(name.official);
-  //   console.log(capital[0]);
-  //   console.log(population);
-  //   console.log(flags.svg);
-  //   console.log(languages[0].name);
-  //     }
+  
 
- 
+
+import './css/styles.css';
+import { fetchCountries, populationFormat } from './fetchCountries';
+import debounce from 'lodash.debounce';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+
+const DEBOUNCE_DELAY = 300;
+
+const refs = {
+  searchBox: document.querySelector('#search-box'),
+  countryList: document.querySelector('.country-list'),
+  countryInfo: document.querySelector('.country-info'),
+};
+
+refs.searchBox.addEventListener(
+  'input',
+  debounce(onInputChange, DEBOUNCE_DELAY)
+);
+
+function onInputChange(e) {
+  e.preventDefault();
+
+  const name = e.target.value.trim();
+
+  refs.countryInfo.innerHTML = '';
+  refs.countryList.innerHTML = '';
+
+  if (!name) {
+    return;
+  }
+  fetchCountries(name)
+    .then(countries => {
+      if (countries.length > 10) {
+        return Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+      }
+      renderCountryList(countries);
+    })
+    .catch(err => Notify.failure('Oops, there is no country with that name'));
+}
+
+function renderCountryList(countries) {
+  if (countries.length === 1) {
+    renderCountryInfo(countries);
+  } else {
+    renderCountrysList(countries);
+  }
+}
+
+function renderCountryInfo(country) {
+  const markup = country
+    .map(({ flags, name, capital, population, languages }) => {
+      const totalPeople = populationFormat(population);
+      return `<img width="200px" height="100px" src='${flags.svg}'
+      alt='${name.official} flag' />
+        <ul class="country-info__list">
+            <li class="country-info__item country-info__item--name"><p><b>Name: </b>${
+              name.official
+            }</p></li>
+            <li class="country-info__item"><p><b>Capital: </b>${capital}</p></li>
+            <li class="country-info__item"><p><b>Population: </b>${totalPeople}</p></li>
+            <li class="country-info__item"><p><b>Languages: </b>${Object.values(
+              languages
+            )}</p></li>
+        </ul>`;
+    })
+    .join('');
+  refs.countryInfo.innerHTML = markup;
+}
+function renderCountrysList(countries) {
+  const markup = countries
+    .map(({ flags, name }) => {
+      return `
+                <li class="country-list__item">
+                    <img class="country-list__flag" src="${flags.svg}" alt="Flag of ${name.official}" width = 50px height = 50px>
+                    <p class="country-list__name">${name.official}</p>
+                </li>
+                `;
+    })
+
+    .join('');
+
+  refs.countryInfo.innerHTML = markup;
+}
